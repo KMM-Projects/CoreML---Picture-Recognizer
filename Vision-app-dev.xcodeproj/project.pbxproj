@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4952301D209D4D0900111843 /* SqueezeNet.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = 4952301C209D4D0900111843 /* SqueezeNet.mlmodel */; };
 		4967B0012097FF7D0024ACD9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4967B0002097FF7D0024ACD9 /* AppDelegate.swift */; };
 		4967B0032097FF7D0024ACD9 /* CameraVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4967B0022097FF7D0024ACD9 /* CameraVC.swift */; };
 		4967B0062097FF7D0024ACD9 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4967B0042097FF7D0024ACD9 /* Main.storyboard */; };
@@ -18,6 +19,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		4952301C209D4D0900111843 /* SqueezeNet.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; path = SqueezeNet.mlmodel; sourceTree = "<group>"; };
 		4967AFFD2097FF7D0024ACD9 /* Vision-app-dev.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Vision-app-dev.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		4967B0002097FF7D0024ACD9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		4967B0022097FF7D0024ACD9 /* CameraVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraVC.swift; sourceTree = "<group>"; };
@@ -93,6 +95,7 @@
 		4967B0142098003D0024ACD9 /* Reasources */ = {
 			isa = PBXGroup;
 			children = (
+				4952301C209D4D0900111843 /* SqueezeNet.mlmodel */,
 			);
 			path = Reasources;
 			sourceTree = "<group>";
@@ -170,6 +173,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4967B0032097FF7D0024ACD9 /* CameraVC.swift in Sources */,
+				4952301D209D4D0900111843 /* SqueezeNet.mlmodel in Sources */,
 				4967B0012097FF7D0024ACD9 /* AppDelegate.swift in Sources */,
 				4967B016209804FB0024ACD9 /* RoundedShadowView.swift in Sources */,
 				4967B0182098067A0024ACD9 /* RoundedShadowButton.swift in Sources */,

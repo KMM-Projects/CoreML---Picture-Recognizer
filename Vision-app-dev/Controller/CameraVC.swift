@@ -8,6 +8,8 @@
 
 import UIKit
 import AVFoundation // camera Acces, AudioVisual Assets of camera
+import CoreML
+import Vision
 
 
 class CameraVC: UIViewController {
@@ -95,6 +97,23 @@ class CameraVC: UIViewController {
         cameraOutput.capturePhoto(with: settings, delegate: self) //missing delegate is in extension below.
         
     }
+    // for comnpletion hadnler
+    func resultsMethod(request: VNRequest, error: Error?){
+        //handler the results
+        guard let results = request.results as? [VNClassificationObservation] else {return}
+        
+        for classification in results {
+            if classification.confidence < 0.5 {
+                self.identificationLbl.text = "I'm not sure what this is. Please Try Again."
+                self.confidenceLbl.text = ""
+                break //leave for loop
+            } else {
+                self.identificationLbl.text = classification.identifier // what the model send back what it thinks it see
+                self.confidenceLbl.text = "CONFIDENCE : \(classification.confidence * 100 )%"
+                break
+            }
+        }
+    }
 }
 
 extension CameraVC: AVCapturePhotoCaptureDelegate {
@@ -105,6 +124,21 @@ extension CameraVC: AVCapturePhotoCaptureDelegate {
         } else {
             //what we get from screen we image and past that in into our imageview
             photoData = photo.fileDataRepresentation()
+            
+            //put photo intp CoreML Model
+            do {
+                let model = try VNCoreMLModel(for: SqueezeNet().model) //usign sqeeznet passing true vision
+                //now we have the brain the model and we are truing to pass him a request
+                let request = VNCoreMLRequest(model: model, completionHandler: resultsMethod ) //we put the things what we get back
+                let handler = VNImageRequestHandler(data: photoData!)
+                //this handler is working on our request
+                try handler.perform([request])
+                
+            }
+            catch {
+                //hanle error
+                debugPrint(error)
+            }
             
             let image = UIImage(data: photoData!)
             self.captureImage.image = image
