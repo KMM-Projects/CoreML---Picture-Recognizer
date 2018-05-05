@@ -17,6 +17,7 @@ class CameraVC: UIViewController {
     var captureSession: AVCaptureSession!
     var cameraOutput: AVCapturePhotoOutput!
     var previewLayer: AVCaptureVideoPreviewLayer!
+    var photoData: Data?
     
     
     
@@ -45,6 +46,10 @@ class CameraVC: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        
+        let tap = UITapGestureRecognizer(target: self, action: #selector(didTapCameraView))
+        tap.numberOfTapsRequired = 1
+        
         //camera Sesssions
         captureSession = AVCaptureSession() //start session
         captureSession.sessionPreset = AVCaptureSession.Preset.hd1920x1080 // set session as full image
@@ -56,13 +61,56 @@ class CameraVC: UIViewController {
             if captureSession.canAddInput(input) == true {
                 captureSession.addInput(input)
             }
+            //crate a camera output and i we can add it to captureSession Do so
+            cameraOutput = AVCapturePhotoOutput()
             
+            if captureSession.canAddOutput(cameraOutput) == true {
+                captureSession.addOutput(cameraOutput!)
+            
+                previewLayer = AVCaptureVideoPreviewLayer(session: captureSession!)
+                previewLayer.videoGravity = AVLayerVideoGravity.resizeAspect // set a content mode and maintain aspect ratio
+                previewLayer.connection?.videoOrientation = AVCaptureVideoOrientation.portrait //app is using portraid mode
+                
+                //put this whole session into CameraView / this is the sublayer
+                cameraView.layer.addSublayer(previewLayer!)
+                cameraView.addGestureRecognizer(tap)
+                captureSession.startRunning()
+                
+            }
+            //now convert the captureSession Output into layer what we can deiplay on the Screen
+            
+        } catch {
+            debugPrint(error)
             
         }
     }
 
+    //when you tap Save camera Image to view
+    @objc func didTapCameraView(){
+        let settings = AVCapturePhotoSettings()
+        let previewPixelType = settings.availablePreviewPhotoPixelFormatTypes.first!
+        let previewFormat = [kCVPixelBufferPixelFormatTypeKey as String: previewPixelType, kCVPixelBufferWidthKey as String: 160, kCVPixelBufferHeightKey as String: 160]
+        settings.previewPhotoFormat = previewFormat
+        
+        cameraOutput.capturePhoto(with: settings, delegate: self) //missing delegate is in extension below.
+        
+    }
 }
 
+extension CameraVC: AVCapturePhotoCaptureDelegate {
+    
+    func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
+        if let error = error {
+            debugPrint(error )
+        } else {
+            //what we get from screen we image and past that in into our imageview
+            photoData = photo.fileDataRepresentation()
+            
+            let image = UIImage(data: photoData!)
+            self.captureImage.image = image
+        }
+    }
+}
 
 
 
