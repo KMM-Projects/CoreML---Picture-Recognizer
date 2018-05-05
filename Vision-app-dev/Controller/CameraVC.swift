@@ -26,6 +26,7 @@ class CameraVC: UIViewController {
     var previewLayer: AVCaptureVideoPreviewLayer!
     var photoData: Data?
     var flashControllState: FlashState = .off
+    var speechaShyntehesizer = AVSpeechSynthesizer()
     
     
     //Outlets
@@ -36,6 +37,7 @@ class CameraVC: UIViewController {
     @IBOutlet weak var identificationLbl: UILabel!
     @IBOutlet weak var confidenceLbl: UILabel!
     @IBOutlet weak var cameraView: UIView!
+    @IBOutlet weak var spinner: UIActivityIndicatorView!
     
     
     
@@ -47,11 +49,14 @@ class CameraVC: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         previewLayer.frame = cameraView.bounds //fit the camera to view
-        
+        speechaShyntehesizer.delegate = self
+           self.spinner.isHidden = true
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        
+      
         
         let tap = UITapGestureRecognizer(target: self, action: #selector(didTapCameraView))
         tap.numberOfTapsRequired = 1
@@ -93,6 +98,10 @@ class CameraVC: UIViewController {
 
     //when you tap Save camera Image to view
     @objc func didTapCameraView(){
+        self.cameraView.isUserInteractionEnabled = true
+        self.spinner.isHidden = false
+        self.spinner.startAnimating() // make spin animation
+        
         let settings = AVCapturePhotoSettings()
         let previewPixelType = settings.availablePreviewPhotoPixelFormatTypes.first!
         let previewFormat = [kCVPixelBufferPixelFormatTypeKey as String: previewPixelType, kCVPixelBufferWidthKey as String: 160, kCVPixelBufferHeightKey as String: 160]
@@ -114,16 +123,32 @@ class CameraVC: UIViewController {
         
         for classification in results {
             if classification.confidence < 0.5 {
-                self.identificationLbl.text = "I'm not sure what this is. Please Try Again."
+                let unknownObject = "I'm not sure what this is. Please Try Again."
+                self.identificationLbl.text = unknownObject
+                syntethizeSpeech(fromString: unknownObject)
                 self.confidenceLbl.text = ""
                 break //leave for loop
             } else {
-                self.identificationLbl.text = classification.identifier // what the model send back what it thinks it see
-                self.confidenceLbl.text = "CONFIDENCE : \(classification.confidence * 100 )%"
+                let identification = classification.identifier
+                let confidence = classification.confidence * 100
+                self.identificationLbl.text =  identification // what the model send back what it thinks it see
+                self.confidenceLbl.text = "CONFIDENCE : \(confidence )%"
+                let sentence = "This looks like a \(identification) and i am \(confidence) % sure."
+                syntethizeSpeech(fromString: sentence)
+                
                 break
             }
         }
     }
+    
+    func syntethizeSpeech(fromString string: String){
+        //cretae an instance of AVSpeechsynthetizer to speak it
+        let speechUtterance = AVSpeechUtterance(string: string)
+        speechaShyntehesizer.speak(speechUtterance)
+        
+    }
+    
+    
     @IBAction func flashBtnWasPressed(_ sender: Any) {
     
         switch  flashControllState {
@@ -166,6 +191,16 @@ extension CameraVC: AVCapturePhotoCaptureDelegate {
             let image = UIImage(data: photoData!)
             self.captureImage.image = image
         }
+    }
+}
+
+extension CameraVC: AVSpeechSynthesizerDelegate {
+    
+    func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didFinish utterance: AVSpeechUtterance) {
+        //when finish talking
+        self.cameraView.isUserInteractionEnabled = true
+        self.spinner.isHidden = true
+        self.spinner.stopAnimating()
     }
 }
 
