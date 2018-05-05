@@ -11,6 +11,11 @@ import AVFoundation // camera Acces, AudioVisual Assets of camera
 import CoreML
 import Vision
 
+enum FlashState {
+    case off
+    case on
+}
+
 
 class CameraVC: UIViewController {
 
@@ -20,8 +25,7 @@ class CameraVC: UIViewController {
     var cameraOutput: AVCapturePhotoOutput!
     var previewLayer: AVCaptureVideoPreviewLayer!
     var photoData: Data?
-    
-    
+    var flashControllState: FlashState = .off
     
     
     //Outlets
@@ -93,6 +97,12 @@ class CameraVC: UIViewController {
         let previewPixelType = settings.availablePreviewPhotoPixelFormatTypes.first!
         let previewFormat = [kCVPixelBufferPixelFormatTypeKey as String: previewPixelType, kCVPixelBufferWidthKey as String: 160, kCVPixelBufferHeightKey as String: 160]
         settings.previewPhotoFormat = previewFormat
+        //flash
+        if flashControllState == .off {
+            settings.flashMode = .off
+        } else {
+            settings.flashMode = .on
+        }
         
         cameraOutput.capturePhoto(with: settings, delegate: self) //missing delegate is in extension below.
         
@@ -113,6 +123,19 @@ class CameraVC: UIViewController {
                 break
             }
         }
+    }
+    @IBAction func flashBtnWasPressed(_ sender: Any) {
+    
+        switch  flashControllState {
+        case .off:
+            flashBtn.setTitle("FLASH ON", for: .normal )
+            flashControllState = .on
+        case .on:
+            flashBtn.setTitle("FLASH OFF", for: .normal )
+            flashControllState = .off
+     
+        }
+    
     }
 }
 
